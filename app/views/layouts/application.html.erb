@@ -11,6 +11,16 @@
   </head>
 
   <body>
-    <%= yield %>
+    <div class="container mx-auto px-8 py-3">
+      <p class="notice"><%= notice %></p>
+      <p class="alert"><%= alert %></p>
+      <%= yield %>
+      <% if Rails.env.development? %>
+        <div class="p-3 bg-gray-200 text-red-500 rounded">
+          <p class="sample sample-child"><%= debug(params) %></p>
+          <p>セッションID => <%= session["warden.user.user.key"] %></p>
+        </div>
+      <% end %>
+    </div>
   </body>
 </html>
