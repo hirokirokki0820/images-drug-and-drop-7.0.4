@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 
 // Connects to data-controller="images"
 export default class extends Controller {
-  static targets = ["select", "preview", "image_box", "error"]
+  static targets = ["select", "preview", "drop", "image_box", "error"]
 
   /* プレビュー画像の削除 */
   deleteImage(){
@@ -17,6 +17,42 @@ export default class extends Controller {
     }else{
       return false
     }
+  }
+
+  /* 画像ドラッグ時の処理（ドラッグ&ドロップ） */
+  dragover(e) {
+    e.preventDefault()
+    // dragover したときに drop_area の色を変える
+    this.dropTarget.classList.remove("bg-gray-50")
+    this.dropTarget.classList.add("bg-gray-200")
+  }
+
+  dragleave(e) {
+    e.preventDefault()
+    this.dropTarget.classList.remove("bg-gray-200")
+    this.dropTarget.classList.add("bg-gray-50")
+  }
+
+  dropImages(e){
+    e.preventDefault()
+    this.dropTarget.classList.remove("bg-gray-200")
+    this.dropTarget.classList.add("bg-gray-50")
+
+    this.errorTarget.textContent = ""
+    const uploadedFilesCount = this.previewTarget.querySelectorAll(".image-box").length
+    const files = e.dataTransfer.files
+    if(files.length + uploadedFilesCount > 10){
+      this.errorTarget.textContent = "画像アップロード上限は最大10枚です。"
+    }else{
+      for(const file of files){
+        if(this.imageSizeOver(file)){
+          this.errorTarget.textContent = "ファイルサイズの上限(1枚あたり5MB)を超えている画像はアップロードできません。"
+        }else{
+          this.uploadImage(file) // ファイルのアップロード
+        }
+      }
+    }
+    this.selectTarget.value = "" // 選択ファイルのリセット
   }
 
   /* 画像選択時の処理 */
